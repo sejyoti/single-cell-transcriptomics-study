@@ -1,3 +1,6 @@
+![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white)
+![Conda](https://img.shields.io/badge/-Conda-4B8BBE?style=flat&logo=conda-forge&logoColor=white)
+
 # single-cell-transcriptomics-study
 Programatically prepare the data matrix for a single cell transcriptomics study: GSE137829
 # Clean and Export Gene Expression Data
