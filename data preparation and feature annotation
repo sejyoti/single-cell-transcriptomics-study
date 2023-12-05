@@ -1,0 +1,37 @@
+Programatically prepare the data and metadata for the microarray study GSE35609 Microarray dataset: Gene expression profiling is done using array chips, which work
+by hybridizing probes to target cDNA sequences.
+
+
+import pandas as pd
+
+# 1. Read in data matrix
+data_df = pd.read_excel('GSE35609.xlsx', index_col=0)
+
+# 2. Read in probe mapping file
+mapping_df = pd.read_csv('GPL6885-11608.txt', sep='\t')
+
+# Keep only needed columns
+mapping_df = mapping_df[['Probe Set ID', 'Gene Symbol', 'Entrez Gene ID']]
+
+# 3. Get HGNC IDs
+from mygene import MyGeneInfo
+mg = MyGeneInfo()
+
+hgnc_ids = mg.getgenes(mapping_df['Entrez Gene ID'].tolist(),
+                       fields='hgnc_id',
+                       species='human')['hits']
+
+hgnc_df = pd.DataFrame(hgnc_ids)[['query','hgnc_id']]
+hgnc_df.columns = ['Entrez Gene ID', 'hgnc_id']
+
+mapping_df = mapping_df.merge(hgnc_df, on='Entrez Gene ID')
+
+# Export mapping file
+mapping_df.to_csv('probe_to_hgnc_mapping.csv', index=False)
+
+# 4. Update data matrix index
+id_map = dict(zip(mapping_df['Probe Set ID'], mapping_df['hgnc_id']))
+data_df.index = data_df.index.map(id_map)
+
+# 5. Export updated data matrix
+data_df.to_csv('data_matrix_with_hgnc_ids.csv')
